@@ -24,6 +24,16 @@ Copy `.env.example` into your shell or monorepo `.env` as needed. Variables are 
 
 Server-side chat (on the portfolio app) still needs `OPENAI_API_KEY`, optional `SITE_CHAT_RAG`, etc.—see that app’s `.env.example`.
 
+## Vendor CLI forward (`magicborn vendor <id> …`)
+
+In the host monorepo, the nested vendor process gets:
+
+1. The parent `process.env`.
+2. `vendor/<id>/.env` parsed as simple `KEY=value` lines (no variable expansion), merged **on top** so vendor keys override the host on collision.
+3. `MAGICBORN_VENDOR_ID` and `MAGICBORN_VENDOR_ROOT` set after that merge.
+
+Merged env is never printed to the terminal.
+
 ## Terminal chat vs web Site Copilot
 
 | | **This package (`renderOperatorChat`)** | **Portfolio `SiteCopilot.tsx`** |
