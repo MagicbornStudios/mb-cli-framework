@@ -56,7 +56,7 @@ await renderOperatorChat({ chatApiUrl: url });
 
 ## Chat request contract
 
-Request body: `{ messages: { role: 'user' \| 'assistant' \| 'system'; content: string }[] }`  
+Request body: `{ messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> }`  
 Success response: `{ text: string, hits?: [...], query?: string, model?: string }` — aligned with `apps/portfolio/lib/site-chat.ts` and `app/api/chat/route.ts`.
 
 ## Build
