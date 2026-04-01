@@ -1,0 +1,27 @@
+{
+  "name": "@magicborn/mb-cli-framework",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared CLI completion, vendor scope, and command-discovery helpers for Magicborn CLIs (magicborn, grimetime, …)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.3",
+    "typescript": "^5.9.3"
+  }
+}
