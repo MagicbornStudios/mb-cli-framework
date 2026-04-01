@@ -20,8 +20,19 @@
     "build": "tsc -p tsconfig.json",
     "prepare": "tsc -p tsconfig.json"
   },
+  "peerDependencies": {
+    "ink": "^6.0.0",
+    "react": "^19.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.19.3",
+    "@types/react": "^19.2.14",
+    "ink": "^6.8.0",
+    "react": "^19.2.1",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@assistant-ui/react-ink": "^0.0.8",
+    "@assistant-ui/react-ink-markdown": "^0.0.7"
   }
 }

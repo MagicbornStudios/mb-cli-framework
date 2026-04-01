@@ -1,13 +1,25 @@
 /**
  * mb-cli-framework — shared helpers for Magicborn CLIs.
- * See: custom_portfolio docs global/planning/plans/mb-cli-framework/PLAN.mdx
+ * See: host monorepo `apps/portfolio/content/docs/global/planning/plans/mb-cli-framework/PLAN.mdx`
  */
-/** Suffix legend for plain-text completions (bash-safe; use when ANSI is disabled). */
-export declare const VENDOR_COMPLETION_LEGEND = "(cli)=controllable bin per .magicborn/cli.toml; plain=id only";
+export { isMagicbornPlainMode, shouldOfferMagicbornTui } from './cli-mode.js';
+export { defaultCliTheme, resolveCliTheme, type CliTheme } from './cli-theme.js';
+export { resolvePortfolioChatApiUrl } from './chat/resolve-portfolio-chat-url.js';
+export { createPortfolioSiteChatAdapter } from './chat/create-portfolio-site-chat-adapter.js';
+export type { PortfolioSiteChatAdapterOptions } from './chat/create-portfolio-site-chat-adapter.js';
+export type { SiteChatApiHit, SiteChatApiResponse, SiteChatConversationMessage, } from './chat/portfolio-site-chat-types.js';
+export { renderOperatorChat } from './chat/run-operator-chat.js';
+export { OperatorChatApp } from './chat/OperatorChatApp.js';
+/** Suffix legend for plain-text completions (bash-safe). */
+export declare const VENDOR_COMPLETION_LEGEND = "(cli)=controllable vendor bin exists; plain=id only";
 export type VendorCompletionRow = {
     id: string;
-    /** When true, manifest declares a bin the parent CLI can forward to. */
+    /** When true, vendor bin exists on disk (parent CLI can forward). */
     controllable: boolean;
 };
-/** Format one completion word for `compgen -W` (no spaces). */
-export declare function formatVendorCompletionToken(row: VendorCompletionRow): string;
+/** `NO_COLOR` wins; `FORCE_COLOR` forces; else TTY. */
+export declare function shouldEmitAnsiForCompletion(): boolean;
+/** One compgen word: `id` or `id(cli)`; optional green `(cli)` when ANSI allowed. */
+export declare function formatVendorCompletionToken(row: VendorCompletionRow, options?: {
+    ansi?: boolean;
+}): string;
