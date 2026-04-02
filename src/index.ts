@@ -6,6 +6,16 @@
 export { isMagicbornPlainMode, shouldOfferMagicbornTui } from './cli-mode.js';
 export { defaultCliTheme, resolveCliTheme, type CliTheme } from './cli-theme.js';
 
+export {
+  CHAT_DEV_RUNTIME_DIR,
+  CHAT_DEV_RUNTIME_FILE,
+  chatDevRuntimePath,
+  clearPortfolioChatDevRuntime,
+  monorepoRootFromCwd,
+  readPortfolioChatDevRuntime,
+  writePortfolioChatDevRuntime,
+} from './chat/chat-dev-runtime.js';
+export type { PortfolioChatDevRuntimeV1 } from './chat/chat-dev-runtime.js';
 export { resolvePortfolioChatApiUrl } from './chat/resolve-portfolio-chat-url.js';
 export { createPortfolioSiteChatAdapter } from './chat/create-portfolio-site-chat-adapter.js';
 export type { PortfolioSiteChatAdapterOptions } from './chat/create-portfolio-site-chat-adapter.js';
