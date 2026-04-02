@@ -46,6 +46,15 @@ Merged env is never printed to the terminal.
 
 So the **CLI uses the same RAG + chat pipeline on the server** as the site; the **extra** portfolio pieces are web-only UX (sources panel, image generation in-thread, devtools).
 
+## Ink layout primitives
+
+| Export | Role |
+| --- | --- |
+| `TuiVerticalSlot` / `defaultTuiLayoutBlueprint` | Named regions (banner, transcript, activity, panel, composer, footer). |
+| `CliScreenBanner` | Bordered header card (headline + children). |
+| `CliFooterSlotRow` | Claude-style footer row: three slots separated by `\|`. |
+| `CliActivityLine` | Optional elapsed timer (`Thinking · Ns`); render **outside** the transcript so only this subtree updates on the tick. |
+
 ## API
 
 ```ts
