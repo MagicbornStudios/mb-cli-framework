@@ -31,12 +31,25 @@ function formatHitsFooter(hits) {
         .join(' · ');
     return `\n\n— ${hits.length} excerpt(s): ${line}`;
 }
+function resolveFetchTimeoutMs(explicit) {
+    if (explicit !== undefined && Number.isFinite(explicit) && explicit > 0) {
+        return explicit;
+    }
+    const raw = process.env.MAGICBORN_CHAT_TIMEOUT_MS?.trim();
+    const n = raw ? Number(raw) : NaN;
+    return Number.isFinite(n) && n > 0 ? n : 18_000;
+}
+function abortSignalWithTimeout(signal, timeoutMs) {
+    const t = AbortSignal.timeout(timeoutMs);
+    return signal ? AbortSignal.any([t, signal]) : t;
+}
 /**
  * `ChatModelAdapter` that talks to a Next (or compatible) app implementing
  * `POST /api/chat` like the portfolio Site Copilot route (`app/api/chat/route.ts`).
  */
 export function createPortfolioSiteChatAdapter(options) {
     const fetchFn = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
+    const fetchTimeoutMs = resolveFetchTimeoutMs(options.fetchTimeoutMs);
     return {
         async *run({ messages, abortSignal }) {
             const conversation = threadToSiteConversation(messages);
@@ -48,12 +61,27 @@ export function createPortfolioSiteChatAdapter(options) {
                 };
                 return;
             }
-            const res = await fetchFn(options.chatApiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages: conversation }),
-                signal: abortSignal,
-            });
+            const signal = abortSignalWithTimeout(abortSignal, fetchTimeoutMs);
+            let res;
+            try {
+                res = await fetchFn(options.chatApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: conversation }),
+                    signal,
+                });
+            }
+            catch (e) {
+                const isAbort = e instanceof Error && e.name === 'AbortError';
+                const hint = isAbort
+                    ? `Request timed out after ${Math.round(fetchTimeoutMs / 1000)}s or was cancelled. Start the portfolio app (e.g. pnpm dev) or set MAGICBORN_CHAT_BASE_URL / MAGICBORN_CHAT_URL.`
+                    : `Could not reach ${options.chatApiUrl}. ${e instanceof Error ? e.message : String(e)}`;
+                yield {
+                    content: [{ type: 'text', text: hint }],
+                    status: { type: 'complete', reason: 'stop' },
+                };
+                return;
+            }
             const data = (await res.json().catch(() => null));
             if (!res.ok) {
                 const msg = data && typeof data.message === 'string' && data.message.trim()

@@ -51,7 +51,7 @@ function InkThreadMessage() {
 function QuitListener() {
   const { exit } = useApp();
   useInput((input, key) => {
-    if (input === 'q' || key.escape || (key.ctrl && input === 'c')) {
+    if (key.escape || (key.ctrl && input === 'c')) {
       exit();
     }
   });
@@ -77,15 +77,21 @@ export function OperatorChatApp(props: { chatApiUrl: string }) {
           </Text>
           <Text color={theme.muted}>Portfolio /api/chat (RAG + model on server)</Text>
           <Text color={theme.description}>{props.chatApiUrl}</Text>
-          <Text color={theme.muted}>q · Esc · Ctrl+C quit</Text>
+          <Text color={theme.muted}>Esc · Ctrl+C quit</Text>
         </Box>
-        <ThreadPrimitive.Root flexDirection="column">
+        <ThreadPrimitive.Root flexDirection="column" flexGrow={1}>
           <ThreadPrimitive.Empty>
-            <Box marginBottom={1}>
-              <Text color={theme.muted}>Ask about public site content. Start the Next app if needed.</Text>
+            <Box marginBottom={1} flexDirection="column">
+              <Text color={theme.muted}>
+                Messages appear above once you send. The portfolio app must be running (default{' '}
+                <Text color={theme.description}>http://127.0.0.1:3000</Text>
+                ) unless you set MAGICBORN_CHAT_BASE_URL or MAGICBORN_CHAT_URL.
+              </Text>
             </Box>
           </ThreadPrimitive.Empty>
-          <ThreadPrimitive.Messages>{() => <InkThreadMessage />}</ThreadPrimitive.Messages>
+          <Box flexDirection="column" marginBottom={1} minHeight={1}>
+            <ThreadPrimitive.Messages>{() => <InkThreadMessage />}</ThreadPrimitive.Messages>
+          </Box>
           <Box borderStyle="round" borderColor={theme.border} paddingX={1} marginTop={1}>
             <ComposerPrimitive.Input submitOnEnter placeholder="Message…" autoFocus />
           </Box>

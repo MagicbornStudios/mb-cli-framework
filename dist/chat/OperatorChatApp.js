@@ -26,7 +26,7 @@ function InkThreadMessage() {
 function QuitListener() {
     const { exit } = useApp();
     useInput((input, key) => {
-        if (input === 'q' || key.escape || (key.ctrl && input === 'c')) {
+        if (key.escape || (key.ctrl && input === 'c')) {
             exit();
         }
     });
@@ -37,5 +37,5 @@ export function OperatorChatApp(props) {
     const chatModel = useMemo(() => createPortfolioSiteChatAdapter({ chatApiUrl: props.chatApiUrl }), [props.chatApiUrl]);
     const runtime = useLocalRuntime(chatModel, {});
     const cols = Math.max(60, Math.min(100, process.stdout.columns ?? 80));
-    return (_jsxs(AssistantRuntimeProvider, { runtime: runtime, children: [_jsx(QuitListener, {}), _jsxs(Box, { flexDirection: "column", width: cols, children: [_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsx(Text, { bold: true, color: theme.primary, children: "Site chat" }), _jsx(Text, { color: theme.muted, children: "Portfolio /api/chat (RAG + model on server)" }), _jsx(Text, { color: theme.description, children: props.chatApiUrl }), _jsx(Text, { color: theme.muted, children: "q \u00B7 Esc \u00B7 Ctrl+C quit" })] }), _jsxs(ThreadPrimitive.Root, { flexDirection: "column", children: [_jsx(ThreadPrimitive.Empty, { children: _jsx(Box, { marginBottom: 1, children: _jsx(Text, { color: theme.muted, children: "Ask about public site content. Start the Next app if needed." }) }) }), _jsx(ThreadPrimitive.Messages, { children: () => _jsx(InkThreadMessage, {}) }), _jsx(Box, { borderStyle: "round", borderColor: theme.border, paddingX: 1, marginTop: 1, children: _jsx(ComposerPrimitive.Input, { submitOnEnter: true, placeholder: "Message\u2026", autoFocus: true }) })] })] })] }));
+    return (_jsxs(AssistantRuntimeProvider, { runtime: runtime, children: [_jsx(QuitListener, {}), _jsxs(Box, { flexDirection: "column", width: cols, children: [_jsxs(Box, { flexDirection: "column", marginBottom: 1, children: [_jsx(Text, { bold: true, color: theme.primary, children: "Site chat" }), _jsx(Text, { color: theme.muted, children: "Portfolio /api/chat (RAG + model on server)" }), _jsx(Text, { color: theme.description, children: props.chatApiUrl }), _jsx(Text, { color: theme.muted, children: "Esc \u00B7 Ctrl+C quit" })] }), _jsxs(ThreadPrimitive.Root, { flexDirection: "column", flexGrow: 1, children: [_jsx(ThreadPrimitive.Empty, { children: _jsx(Box, { marginBottom: 1, flexDirection: "column", children: _jsxs(Text, { color: theme.muted, children: ["Messages appear above once you send. The portfolio app must be running (default", ' ', _jsx(Text, { color: theme.description, children: "http://127.0.0.1:3000" }), ") unless you set MAGICBORN_CHAT_BASE_URL or MAGICBORN_CHAT_URL."] }) }) }), _jsx(Box, { flexDirection: "column", marginBottom: 1, minHeight: 1, children: _jsx(ThreadPrimitive.Messages, { children: () => _jsx(InkThreadMessage, {}) }) }), _jsx(Box, { borderStyle: "round", borderColor: theme.border, paddingX: 1, marginTop: 1, children: _jsx(ComposerPrimitive.Input, { submitOnEnter: true, placeholder: "Message\u2026", autoFocus: true }) })] })] })] }));
 }
