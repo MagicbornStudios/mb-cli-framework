@@ -32,6 +32,7 @@ export {
   type TuiLayoutBlueprint,
   type TuiVerticalSlot,
 } from './ink/tui-layout-contract.js';
+export { CliScreenBanner, type CliScreenBannerProps } from './ink/CliScreenBanner.js';
 
 /** Suffix legend for plain-text completions (bash-safe). */
 export const VENDOR_COMPLETION_LEGEND = '(cli)=controllable vendor bin exists; plain=id only';
