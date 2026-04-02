@@ -27,6 +27,12 @@ export type {
 export { renderOperatorChat } from './chat/run-operator-chat.js';
 export { OperatorChatApp } from './chat/OperatorChatApp.js';
 
+export {
+  defaultTuiLayoutBlueprint,
+  type TuiLayoutBlueprint,
+  type TuiVerticalSlot,
+} from './ink/tui-layout-contract.js';
+
 /** Suffix legend for plain-text completions (bash-safe). */
 export const VENDOR_COMPLETION_LEGEND = '(cli)=controllable vendor bin exists; plain=id only';
 
