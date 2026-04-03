@@ -5,6 +5,6 @@ export async function renderOperatorChat(params) {
     if (process.stdout.isTTY) {
         console.clear();
     }
-    const { waitUntilExit } = render(_jsx(OperatorChatApp, { chatApiUrl: params.chatApiUrl }));
+    const { waitUntilExit } = render(_jsx(OperatorChatApp, { chatApiUrl: params.chatApiUrl, repoRoot: params.repoRoot }));
     await waitUntilExit();
 }

@@ -21,8 +21,14 @@ Copy `.env.example` into your shell or monorepo `.env` as needed. Variables are 
 | `MAGICBORN_CHAT_URL` | Full override for the chat endpoint (wins over base + `/api/chat`). |
 | `MAGICBORN_PLAIN` | When `1` or `true`, skip Ink TUIs (home + chat). |
 | `CI` | When set, TUIs are not offered (non-TTY behavior). |
+| `MAGICBORN_ACCEPT_EDITS_AUTO` | Optional `0`/`1` / `true`/`false`: overrides **`.magicborn/cli-session.json`** for the **accept edits** footer (`confirm` vs `auto`). When set, **Ctrl+E** in **`OperatorChatApp`** does not change the visible mode (file may still update). |
+| `MAGICBORN_CHAT_TIMEOUT_MS` | Chat `fetch` timeout (ms); default `18000`. |
 
 Server-side chat (on the portfolio app) still needs `OPENAI_API_KEY`, optional `SITE_CHAT_RAG`, etc.—see that app’s `.env.example`.
+
+### Session file (repo root)
+
+**`.magicborn/cli-session.json`** (gitignored in this monorepo) stores operator UI prefs, e.g. `{ "version": 1, "acceptEditsAuto": false }`. **`readCliSession` / `writeCliSessionMerge` / `toggleAcceptEditsAuto`** manage it. **`magicborn chat`** passes **`repoRoot`** into **`renderOperatorChat`** so **Ctrl+E** can toggle when env does not lock the mode.
 
 ## Vendor CLI forward (`magicborn vendor <id> …`)
 
@@ -48,12 +54,19 @@ So the **CLI uses the same RAG + chat pipeline on the server** as the site; the 
 
 ## Ink layout primitives
 
+See **[docs/INK-RENDERING.md](docs/INK-RENDERING.md)** for partial-update practices (where to put timers, context meter, and transcript boundaries).
+
 | Export | Role |
 | --- | --- |
 | `TuiVerticalSlot` / `defaultTuiLayoutBlueprint` | Named regions (banner, transcript, activity, panel, composer, footer). |
 | `CliScreenBanner` | Bordered header card (headline + children). |
 | `CliFooterSlotRow` | Claude-style footer row: three slots separated by `\|`. |
-| `CliActivityLine` | Optional elapsed timer (`Thinking · Ns`); render **outside** the transcript so only this subtree updates on the tick. |
+| `CliActivityLine` | Optional elapsed timer (`Thinking · Ns`); render **outside** the transcript so only this subtree updates on the tick. **`renderOperatorChat` / `OperatorChatApp`** show this line while **`useThreadIsRunning()`** is true (active model stream). |
+| `CliContextMeter` | `▓`/`░` bar + `%` — **approximate** context usage; host should pass model-accurate `usedPct` when available. |
+| **`CliTheme`** (`resolveCliTheme`) | Tokens include **`slash`** (slash-command palette) and **`footerAccent`** (footer chrome); **`NO_COLOR`** / TTY behavior via **`cli-mode`** helpers. |
+| `approxContextPctFromChars` / `approxCharsFromThreadMessages` | Heuristic for **`usedPct`** (chars÷4 vs 128k ref window; thread messages sum text / tool / capped binary). Used by **magicborn home** + **`OperatorChatApp`** second footer row. |
+
+**`OperatorChatApp`** footer: row 1 = `↑ message` · model · API host; row 2 = context meter + **`» accept edits · confirm`** or **`auto`** (from **`.magicborn/cli-session.json`** or **`MAGICBORN_ACCEPT_EDITS_AUTO`**). **Keyboard:** Esc exits; **Ctrl+C** cancels an in-flight chat request when the thread is running, otherwise exits; **Ctrl+E** toggles accept-edits mode when **`repoRoot`** is passed and env does not lock the mode.
 
 ## API
 
@@ -68,14 +81,14 @@ import {
 } from '@magicborn/mb-cli-framework';
 
 const url = resolvePortfolioChatApiUrl();
-await renderOperatorChat({ chatApiUrl: url });
+await renderOperatorChat({ chatApiUrl: url, repoRoot: '/path/to/monorepo' });
 ```
 
 `createPortfolioSiteChatAdapter` is available if you build a custom Ink shell but want the same `ThreadMessage` → `POST /api/chat` mapping.
 
 ## Chat request contract
 
-Request body: `{ messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }> }`  
+Request body: `{ messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>; client?: { acceptEditsAuto?: boolean; source?: string } }` — **`client`** is optional (server may log; does not change model output today).  
 Success response: `{ text: string, hits?: [...], query?: string, model?: string }` — aligned with `apps/portfolio/lib/site-chat.ts` and `app/api/chat/route.ts`.
 
 ## Build

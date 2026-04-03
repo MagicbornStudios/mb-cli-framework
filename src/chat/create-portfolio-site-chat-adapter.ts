@@ -1,5 +1,7 @@
 import type { ChatModelAdapter, ThreadMessage } from '@assistant-ui/react-ink';
-import type { SiteChatApiResponse, SiteChatConversationMessage } from './portfolio-site-chat-types.js';
+import type { SiteChatApiResponse, SiteChatConversationMessage, SiteChatRagMode } from './portfolio-site-chat-types.js';
+import type { CliSessionV1 } from './cli-session.js';
+import { handleSlashChatLine } from './slash-chat-commands.js';
 
 const MAX_MESSAGES = 12;
 
@@ -43,6 +45,17 @@ export type PortfolioSiteChatAdapterOptions = {
   fetchImpl?: typeof fetch;
   /** Request timeout in ms. Falls back to `MAGICBORN_CHAT_TIMEOUT_MS` or 18_000. */
   fetchTimeoutMs?: number;
+  /** Sent as JSON `client` on the POST body for server logging / future policy. */
+  client?: { acceptEditsAuto?: boolean; source?: string };
+  /** When set, `/model` and `/rag` update session and short-circuit before POST. */
+  getSession?: () => CliSessionV1;
+  persistSession?: (patch: Partial<CliSessionV1>) => void;
+  /** When true, POST includes `enableCopilotTools` (server must authorize). Also set via `MAGICBORN_COPILOT_TOOLS=1`. */
+  enableCopilotTools?: boolean;
+  /** Bearer for `Authorization` when using Copilot tools (or set `MAGICBORN_COPILOT_BEARER`). */
+  copilotToolsBearer?: string;
+  /** Called after a successful JSON parse of `/api/chat` (before the assistant message is yielded). */
+  onChatResponse?: (data: SiteChatApiResponse) => void;
 };
 
 function resolveFetchTimeoutMs(explicit?: number): number {
@@ -82,12 +95,60 @@ export function createPortfolioSiteChatAdapter(
       }
 
       const signal = abortSignalWithTimeout(abortSignal, fetchTimeoutMs);
+
+      if (options.getSession && options.persistSession) {
+        const slash = await handleSlashChatLine({
+          userLine: lastUser.content.trim(),
+          getSession: options.getSession,
+          persistSession: options.persistSession,
+        });
+        if (slash) {
+          yield {
+            content: [{ type: 'text', text: slash.assistantText }],
+            status: { type: 'complete', reason: 'stop' },
+          };
+          return;
+        }
+      }
+
       let res: Response;
       try {
+        const body: {
+          messages: typeof conversation;
+          client?: NonNullable<PortfolioSiteChatAdapterOptions['client']>;
+          model?: string;
+          ragMode?: SiteChatRagMode;
+          enableCopilotTools?: boolean;
+        } = {
+          messages: conversation,
+        };
+        if (options.client && Object.keys(options.client).length > 0) {
+          body.client = options.client;
+        }
+        const sess = options.getSession?.();
+        const m = sess?.chatModel?.trim();
+        if (m) {
+          body.model = m;
+        }
+        if (sess?.ragMode !== undefined) {
+          body.ragMode = sess.ragMode;
+        }
+        const enableCopilotTools =
+          options.enableCopilotTools === true ||
+          process.env.MAGICBORN_COPILOT_TOOLS?.trim().toLowerCase() === '1';
+        if (enableCopilotTools) {
+          body.enableCopilotTools = true;
+        }
+        const copilotBearer =
+          options.copilotToolsBearer?.trim() || process.env.MAGICBORN_COPILOT_BEARER?.trim();
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (copilotBearer) {
+          headers.Authorization = `Bearer ${copilotBearer}`;
+        }
         res = await fetchFn(options.chatApiUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: conversation }),
+          headers,
+          body: JSON.stringify(body),
           signal,
         });
       } catch (e) {
@@ -103,6 +164,9 @@ export function createPortfolioSiteChatAdapter(
       }
 
       const data = (await res.json().catch(() => null)) as SiteChatApiResponse | null;
+      if (res.ok && data && options.onChatResponse) {
+        options.onChatResponse(data);
+      }
       if (!res.ok) {
         const msg =
           data && typeof data.message === 'string' && data.message.trim()

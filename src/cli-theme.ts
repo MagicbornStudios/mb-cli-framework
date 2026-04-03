@@ -20,6 +20,10 @@ export type CliTheme = {
   openai: string;
   /** Model / style */
   model: string;
+  /** Slash-command palette (`/…`) — Claude Code–style accent (see `global-tooling-04-01`). */
+  slash: string;
+  /** Footer chrome accent (hints, slot labels). */
+  footerAccent: string;
   /** Shell / meta */
   shell: string;
   /** Descriptions (dim + accent) */
@@ -42,6 +46,8 @@ export const defaultCliTheme: CliTheme = {
   vendor: 'green',
   openai: 'blue',
   model: 'magenta',
+  slash: 'magenta',
+  footerAccent: 'cyan',
   shell: 'gray',
   description: 'magenta',
   warn: 'yellow',

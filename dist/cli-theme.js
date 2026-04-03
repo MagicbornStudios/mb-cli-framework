@@ -12,6 +12,8 @@ export const defaultCliTheme = {
     vendor: 'green',
     openai: 'blue',
     model: 'magenta',
+    slash: 'magenta',
+    footerAccent: 'cyan',
     shell: 'gray',
     description: 'magenta',
     warn: 'yellow',
