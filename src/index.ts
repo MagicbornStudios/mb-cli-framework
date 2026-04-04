@@ -3,6 +3,9 @@
  * See: host monorepo `apps/portfolio/content/docs/global/planning/plans/mb-cli-framework/PLAN.mdx`
  */
 
+export { TableFormatter, type TableFormat, type TableFormatterOptions } from './table/TableFormatter.js';
+export { JsonEmitter, type JsonEmitterOptions, type JsonEnvelope } from './table/JsonEmitter.js';
+
 export {
   buildCmdCdExecLine,
   buildMsysBashCdExecScript,

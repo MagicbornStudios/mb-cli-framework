@@ -2,6 +2,8 @@
  * mb-cli-framework — shared helpers for Magicborn CLIs.
  * See: host monorepo `apps/portfolio/content/docs/global/planning/plans/mb-cli-framework/PLAN.mdx`
  */
+export { TableFormatter, type TableFormat, type TableFormatterOptions } from './table/TableFormatter.js';
+export { JsonEmitter, type JsonEmitterOptions, type JsonEnvelope } from './table/JsonEmitter.js';
 export { buildCmdCdExecLine, buildMsysBashCdExecScript, runExternalCliViaCmdCdExec, runExternalCliViaMsysBashCdExec, shouldUseMsysBashExecWrapper, } from './platform/run-external-cli-msys.js';
 export { isMagicbornPlainMode, shouldOfferMagicbornTui } from './cli-mode.js';
 export { defaultCliTheme, resolveCliTheme, type CliTheme } from './cli-theme.js';
