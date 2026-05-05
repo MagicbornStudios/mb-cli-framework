@@ -1,3 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <roadmap>
+
+  <phase id="01">
+    <title>Foundation</title>
+    <goal>Audit source tree and write PROJECT.md</goal>
+    <status>planned</status>
+    <depends></depends>
+  </phase>
+
+  <phase id="00">
+    <title>Bootstrap</title>
+    <goal>Initial project bootstrap</goal>
+    <status>done</status>
+    <depends></depends>
+  </phase>
+
+  <phase id="02">
+    <title>Core Development</title>
+    <goal>Implement core CLI framework features</goal>
+    <status>planned</status>
+    <depends></depends>
+  </phase>
+
 </roadmap>
